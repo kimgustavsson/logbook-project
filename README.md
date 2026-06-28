@@ -1,2 +1,0 @@
-# logbook-project
-Logbook project

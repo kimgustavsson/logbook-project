@@ -1,0 +1,65 @@
+---
+// Combined index — every dev log entry and every piece of writing, newest
+// first. Mirrors the devlog/writing index pages but pulls from both
+// categories, so it can't reuse PostList directly (each post needs its own
+// basePath depending on category).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostRow from '../../components/PostRow.astro';
+import { getAllPosts } from '../../lib/posts';
+
+const posts = await getAllPosts();
+
+function metaFor(post: (typeof posts)[number]): string {
+  const month = post.date.toLocaleString('en-US', { month: 'long' });
+  return `${post.date.getFullYear()} · ${month}`;
+}
+---
+
+<BaseLayout title="All articles — Kim Dasha Gustavsson" description="Every dev log entry and every piece of writing, in one place.">
+  <section class="block list-page">
+    <div class="wrap">
+      <div class="sec-label">Articles</div>
+      <div class="head-row">
+        <h2>All articles</h2>
+        <span class="count">{posts.length} entries</span>
+      </div>
+
+      <div class="list">
+        {posts.map((post) => (
+          <PostRow
+            href={`/${post.category}/${post.slug}/`}
+            meta={metaFor(post)}
+            title={post.title}
+            description={post.description}
+            tags={post.tags}
+          />
+        ))}
+      </div>
+    </div>
+
+    <div class="page-end">
+      <a class="end-link" href="/">← Home</a>
+      <a class="end-link" href="#" id="to-top">Back to top ↑</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .list-page { padding-top: 132px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .sec-label { font-size: 12.5px; letter-spacing: .08em; color: var(--luxe); text-transform: uppercase; font-weight: 600; margin-bottom: 18px; }
+  .head-row { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 14px; margin-bottom: 6px; }
+  .head-row h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(34px, 5vw, 54px); letter-spacing: -.02em; line-height: 1.04; color: var(--luxe); }
+  .head-row .count { font-size: 14px; color: var(--muted); }
+  .list { margin-top: 30px; }
+  .page-end { max-width: var(--maxw-read); margin: 48px auto 0; display: flex; justify-content: space-between; align-items: center; padding-top: 34px; border-top: 1px solid var(--line); }
+  .end-link { font-size: 14px; color: var(--muted); transition: color .2s; }
+  .end-link:hover { color: var(--luxe); }
+</style>
+
+<script>
+  document.getElementById('to-top')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>

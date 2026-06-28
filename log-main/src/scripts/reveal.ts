@@ -6,52 +6,20 @@
 // - Reveals .fade-up elements as they scroll into view.
 // Respects prefers-reduced-motion (the CSS already disables transforms there).
 
-// Wraps each non-whitespace character of `root` in its own `.letter` span
-// (whitespace stays as plain text so words still wrap normally), and stamps
-// a transition-delay on each so a single class toggle cascades them in.
+import { splitIntoLetters } from './letters';
+
+// Stamps a transition-delay on each letter of `root` (splitting it first if
+// needed) so a single class toggle cascades them in.
 function splitLetters(root: HTMLElement, stepMs: number, baseDelayMs = 0): number {
-  let i = 0;
-  const walk = (node: Node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const text = node.textContent ?? '';
-      if (!text) return;
-      const frag = document.createDocumentFragment();
-      for (const ch of text) {
-        if (/\s/.test(ch)) {
-          frag.appendChild(document.createTextNode(ch));
-        } else {
-          const span = document.createElement('span');
-          span.className = 'letter';
-          span.textContent = ch;
-          span.style.transitionDelay = `${baseDelayMs + i * stepMs}ms`;
-          frag.appendChild(span);
-          i++;
-        }
-      }
-      node.replaceWith(frag);
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      Array.from(node.childNodes).forEach(walk);
-    }
-  };
-  Array.from(root.childNodes).forEach(walk);
-  return i;
+  const letters = splitIntoLetters(root);
+  letters.forEach((span, i) => {
+    span.style.transitionDelay = `${baseDelayMs + i * stepMs}ms`;
+  });
+  return letters.length;
 }
 
 export function initReveal(): void {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // Soft light that follows the cursor across the hero.
-  const hero = document.querySelector<HTMLElement>('.hero');
-  const spotlight = document.querySelector<HTMLElement>('.h-spotlight');
-  if (hero && spotlight && !reduce) {
-    hero.addEventListener('mousemove', (e) => {
-      const rect = hero.getBoundingClientRect();
-      spotlight.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
-      spotlight.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
-      spotlight.classList.add('active');
-    });
-    hero.addEventListener('mouseleave', () => spotlight.classList.remove('active'));
-  }
 
   // Split the hero label ("Mission") into per-character spans so each letter
   // can drop in with its own delay.

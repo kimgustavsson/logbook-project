@@ -16,7 +16,7 @@
   --baby: #9dd1f1; /* Baby Blue — light accent */
   --sky: #c8e0f4; /* Pale Sky — very light accent / section tint */
   --white: #ffffff;
-  --bg: #ECEAE4; /* warm beige — main page/hero background */
+  --bg: #F2F0EA; /* warm off-white — main page/hero background */
 
   /* Semantic aliases (so existing component CSS keeps working) ---------------
      Much of the codebase references --luxe, --seafoam, --grey-blue. We map
@@ -33,6 +33,9 @@
   /* Typography */
   --serif: "Newsreader", Georgia, serif;
   --sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  /* Hero-only typography (the home intro uses a different voice than the rest of the site) */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-ui: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
 
   /* Layout */
   --maxw-hero: 1480px; /* wide hero band */

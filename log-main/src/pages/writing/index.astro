@@ -3,18 +3,9 @@
 // index page, just pointing at the writing collection with the numbered variant.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostList from '../../components/PostList.astro';
-import { getCollection } from 'astro:content';
+import { getPostsByCategory } from '../../lib/posts';
 
-const entries = await getCollection('writing', ({ data }) => !data.draft);
-const posts = entries
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .map((entry) => ({
-    slug: entry.id,
-    title: entry.data.title,
-    description: entry.data.description,
-    date: entry.data.date,
-    tags: entry.data.tags,
-  }));
+const posts = await getPostsByCategory('writing');
 ---
 
 <BaseLayout title="Writing — Kim Dasha Gustavsson" description="Every piece of writing.">

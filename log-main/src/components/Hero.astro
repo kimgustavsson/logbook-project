@@ -1,10 +1,13 @@
 ---
-// Hero: full-height intro with a dominant serif headline, a supporting line,
-// and a bottom meta bar — name/bio on the left, post-count stats on the right,
-// and an "All Articles" CTA. Counts are passed from the page so the numbers
-// stay accurate without duplicating the data-fetch logic.
+// Hero: full-height intro with a dominant display headline, a supporting
+// line, and a bottom meta bar — name/bio on the left, post-count stats on
+// the right — followed by a full-bleed CTA bar to the combined articles
+// list. Counts are passed from the page so the numbers stay accurate
+// without duplicating the data-fetch logic.
 interface Props {
   headline?: string;
+  /** Word/phrase inside `headline` to render italic + bold. Must appear verbatim in `headline`. */
+  highlight?: string;
   sub?: string;
   name?: string;
   caption?: string;
@@ -13,19 +16,22 @@ interface Props {
 }
 const {
   headline = 'This space is an archive of my experiments and everyday problem-solving.',
+  highlight = 'archive',
   sub = 'It is where I test ideas, hit technical roadblocks, and relentlessly figure out how to make them work.',
   name = 'My name here',
   caption = 'MSc in Artificial Intelligence\nBased in Brisbane, Australia',
   devlogCount = 0,
   writingCount = 0,
 } = Astro.props;
+
+const splitAt = highlight ? headline.indexOf(highlight) : -1;
+const before = splitAt >= 0 ? headline.slice(0, splitAt) : headline;
+const after = splitAt >= 0 ? headline.slice(splitAt + highlight.length) : '';
 ---
 
 <header class="hero" id="top">
-  <div class="h-spotlight" aria-hidden="true"></div>
-
   <div class="hero-inner">
-    <h1 class="h-head">{headline}</h1>
+    <h1 class="h-head">{before}{splitAt >= 0 && <em>{highlight}</em>}{after}</h1>
     <p class="h-sub fade-up" data-delay="200">{sub}</p>
   </div>
 
@@ -34,24 +40,22 @@ const {
       <h4>{name}</h4>
       <div class="v" set:html={caption.replace(/\n/g, '<br>')} />
     </div>
-    <div class="blk-right">
-      <div class="blk-stats">
-        <div class="stat">
-          <span class="stat-num">{String(devlogCount).padStart(2, '0')}</span>
-          <span class="stat-label">Dev Log</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num">{String(writingCount).padStart(2, '0')}</span>
-          <span class="stat-label">Writing</span>
-        </div>
+    <div class="blk-stats">
+      <div class="stat">
+        <span class="stat-num">{String(devlogCount).padStart(2, '0')}</span>
+        <span class="stat-label">Dev Log</span>
       </div>
-      <a class="all-articles" href="/devlog">All Articles <span class="arr">→</span></a>
+      <div class="stat">
+        <span class="stat-num">{String(writingCount).padStart(2, '0')}</span>
+        <span class="stat-label">Writing</span>
+      </div>
     </div>
   </div>
 
-  <div class="h-scroll" aria-label="Scroll down">
-    <svg viewBox="0 0 16 11"><path d="M2 9L8 3l6 6" /></svg>
-    <svg viewBox="0 0 16 11"><path d="M2 2l6 6 6-6" /></svg>
+  <div class="h-bottombar">
+    <div class="h-bottombar-inner">
+      <a class="all-articles" href="/articles">All Articles <span class="arr">→</span></a>
+    </div>
   </div>
 </header>
 
@@ -62,49 +66,45 @@ const {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    /* global.css has a generic .hero{background:var(--white)} rule for a
+       different hero layout; override it explicitly so this one matches
+       the page background instead of leaking pure white. */
+    background: var(--bg);
   }
 
-  /* soft cursor-tracking light */
-  .h-spotlight {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity .4s ease;
-    background: radial-gradient(
-      480px circle at var(--mx, 50%) var(--my, 40%),
-      rgba(80, 138, 168, 0.10),
-      transparent 70%
-    );
-  }
-  .h-spotlight.active { opacity: 1; }
-
-  /* headline + sub text, centered vertically with nav offset */
+  /* headline + sub text, top-aligned with nav offset */
   .hero-inner {
-    flex: 1;
     width: 100%;
     max-width: var(--maxw-content);
     margin: 0 auto;
-    padding: clamp(110px, 19vh, 190px) clamp(24px, 9vw, 140px) clamp(36px, 7vh, 72px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: clamp(80px, 12vh, 130px) clamp(24px, 9vw, 140px) clamp(36px, 7vh, 72px);
   }
 
   .h-head {
-    font-family: var(--serif);
+    font-family: var(--font-display);
     font-weight: 400;
-    font-size: clamp(44px, 6.5vw, 86px);
-    line-height: 1.06;
-    letter-spacing: -0.022em;
-    color: var(--luxe);
-    max-width: 20ch;
-    margin-bottom: 28px;
+    font-size: clamp(38px, 4.6vw, 60px);
+    /* spec was 43px at a 42px font-size (the clamp's smallest value) — kept
+       as a ratio (43/42) so it scales with the font-size instead of
+       overlapping once the clamp grows past 43px on wider screens. */
+    line-height: 1.024;
+    letter-spacing: 1.4px;
+    color: #0D2B26;
+    max-width: min(880px, 100%);
+    margin-bottom: 44px;
+  }
+  .h-head em {
+    font-style: italic;
+    font-weight: 700;
   }
 
   .h-sub {
+    font-family: var(--font-ui);
     font-size: clamp(14px, 1.3vw, 16px);
-    line-height: 1.68;
+    /* spec was 15px at a 14px font-size (the clamp's smallest value),
+       kept as a ratio (15/14) for the same reason as .h-head above. */
+    line-height: 1.071;
+    letter-spacing: 1.4px;
     color: var(--muted);
     max-width: 44ch;
   }
@@ -113,19 +113,32 @@ const {
   .h-meta {
     width: 100%;
     max-width: var(--maxw-content);
-    margin: 0 auto clamp(72px, 12vh, 130px);
-    padding: 26px clamp(24px, 9vw, 140px) 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    margin: auto auto 0;
+    padding: 0 clamp(24px, 9vw, 140px);
+    display: grid;
+    grid-template-columns: 7fr 3fr;
+    column-gap: clamp(20px, 4vw, 48px);
     border-top: 1px solid var(--line);
   }
 
+  /* vertical padding lives on the columns themselves (not on .h-meta) so
+     the divider below starts flush against the border-top line instead of
+     floating below it with a gap. Centered (not top-aligned) so it lines
+     up with the midpoint between the Dev Log / Writing stats on the
+     right, since the grid row stretches both columns to the same height. */
+  .blk-name {
+    padding: 26px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .blk-name h4 {
     font-size: 14px;
     font-weight: 600;
+    line-height: 15px;
+    letter-spacing: -0.6px;
     color: var(--luxe);
-    margin-bottom: 8px;
+    margin-bottom: 28px;
   }
   .blk-name .v {
     font-size: 13px;
@@ -133,30 +146,27 @@ const {
     color: var(--muted);
   }
 
-  /* stats + CTA, stacked and right-aligned */
-  .blk-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 18px;
-  }
-
+  /* stats: stacked, divided from the name block by a vertical rule that
+     spans this column's full height (flush top-to-bottom, no gap) */
   .blk-stats {
     display: flex;
-    gap: clamp(28px, 4vw, 52px);
+    flex-direction: column;
+    gap: 20px;
+    padding: 26px 0 26px clamp(20px, 4vw, 48px);
+    border-left: 1px solid var(--line);
   }
 
   .stat {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
   }
 
   .stat-num {
-    font-family: var(--serif);
-    font-size: clamp(30px, 3.2vw, 44px);
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3vw, 40px);
     font-weight: 400;
-    color: var(--luxe);
+    color: var(--line-strong);
     line-height: 1;
     letter-spacing: -0.02em;
   }
@@ -165,48 +175,50 @@ const {
     font-size: 10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--line-strong);
     margin-top: 5px;
   }
 
+  /* full-bleed CTA bar at the very bottom of the hero — the background
+     ignores the content max-width on purpose, but the link inside is
+     wrapped in the same maxw-content column as the nav/footer, with the
+     padding on the outer bar (not the inner box) so the math matches
+     Nav/Footer exactly: their right edge is `viewport/2 - 520`,
+     independent of the padding value, only because the padding sits on
+     the unconstrained outer element rather than on the max-width box
+     itself. Using Nav/Footer's own clamp keeps it aligned at every
+     width, not just on very wide screens where the max-width box alone
+     would already dominate. `.hero` itself already spans the full page
+     width (it has no max-width of its own), so plain 100% reaches
+     edge-to-edge — no 100vw/negative-margin hack needed, which would
+     overshoot by the scrollbar's width and get clipped by body's
+     overflow-x: hidden. */
+  .h-bottombar {
+    width: 100%;
+    background: var(--white);
+    padding: 18px clamp(20px, 5vw, 56px);
+  }
+  .h-bottombar-inner {
+    max-width: var(--maxw-content);
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-end;
+  }
+
   .all-articles {
+    font-family: var(--font-ui);
     font-size: 11.5px;
     letter-spacing: 0.10em;
     text-transform: uppercase;
     color: var(--luxe);
-    opacity: 0.75;
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: opacity .25s, gap .25s;
+    transition: gap .25s;
   }
-  .all-articles:hover { opacity: 1; gap: 13px; }
   .all-articles .arr { transition: transform .25s; }
+  .all-articles:hover { gap: 13px; }
   .all-articles:hover .arr { transform: translateX(2px); }
-
-  /* centered scroll arrows */
-  .h-scroll {
-    position: absolute;
-    left: 50%;
-    bottom: 30px;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1px;
-    color: var(--luxe);
-    opacity: 0.45;
-    animation: hbob 2.4s ease-in-out infinite;
-  }
-  .h-scroll svg { width: 16px; height: 11px; display: block; }
-  .h-scroll path {
-    stroke: currentColor; stroke-width: 1.2; fill: none;
-    stroke-linecap: round; stroke-linejoin: round;
-  }
-  @keyframes hbob {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50%       { transform: translateX(-50%) translateY(4px); }
-  }
 
   /* headline letter animation — spans are injected by reveal.ts */
   :global(.h-head .letter) {
@@ -220,34 +232,34 @@ const {
     transform: none;
   }
 
+  /* sub-line letters — split by text-wave.ts for the ripple-hover effect,
+     not part of the entrance cascade, so no opacity/transform reset here */
+  :global(.h-sub .letter) {
+    display: inline-block;
+  }
+
   /* mobile ---------------------------------------------------------------- */
   @media (max-width: 680px) {
     .hero-inner {
-      padding: clamp(86px, 14vh, 120px) 32px clamp(28px, 5vh, 48px);
-      justify-content: flex-start;
+      padding: clamp(64px, 9vh, 92px) 32px clamp(28px, 5vh, 48px);
     }
     .h-head {
-      font-size: clamp(40px, 10.5vw, 56px);
+      font-size: clamp(30px, 7vw, 38px);
       max-width: 100%;
-      margin-bottom: 20px;
+      margin-bottom: 32px;
     }
     .h-sub { font-size: 14px; max-width: 100%; }
 
     .h-meta {
-      flex-direction: column;
-      gap: 28px;
-      padding: 22px 32px 0;
-      margin-bottom: 72px;
+      column-gap: 16px;
+      padding: 0 32px;
     }
-    .blk-right { align-items: flex-start; width: 100%; }
-    .blk-stats { gap: 32px; }
-    .stat { align-items: flex-start; }
-    .h-scroll { bottom: 18px; }
+    .blk-name { padding: 22px 0; }
+    .blk-stats { padding: 22px 0 22px 16px; }
+    .h-bottombar { padding: 16px 32px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .h-scroll { animation: none; }
-    .h-spotlight { display: none; }
     :global(.h-head .letter) {
       opacity: 1 !important;
       transform: none !important;
