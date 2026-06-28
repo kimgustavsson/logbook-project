@@ -1,0 +1,46 @@
+---
+// Dynamic route for dev log posts. getStaticPaths() turns every Markdown file
+// in the devlog collection into its own page at /devlog/<slug>/.
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('devlog', ({ data }) => !data.draft);
+  // newest first, so "previous" = older, "next" = newer
+  const sorted = entries.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  return sorted.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      prev: sorted[i + 1]
+        ? { href: `/devlog/${sorted[i + 1].id}/`, title: sorted[i + 1].data.title }
+        : null,
+      next: sorted[i - 1]
+        ? { href: `/devlog/${sorted[i - 1].id}/`, title: sorted[i - 1].data.title }
+        : null,
+    },
+  }));
+}
+
+const { entry, prev, next } = Astro.props;
+const { Content } = await render(entry);
+
+// Estimate reading time from the raw markdown (~200 words per minute).
+const words = entry.body.trim().split(/\s+/).length;
+const readingTime = Math.max(1, Math.round(words / 200));
+---
+
+<PostLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  date={entry.data.date}
+  tags={entry.data.tags}
+  slug={`devlog/${entry.id}`}
+  section="Dev log"
+  basePath="/devlog"
+  readingTime={readingTime}
+  prev={prev}
+  next={next}
+>
+  <Content />
+</PostLayout>

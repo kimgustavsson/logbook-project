@@ -1,0 +1,41 @@
+/* ==========================================================================
+   Design tokens — the single source of truth for color, type, and spacing.
+   Change a value here and it updates everywhere. Never hardcode these
+   values in component files; always reference var(--token-name).
+
+   Palette: Brick Ember (red) as a sparing accent, an ink-navy for text, and
+   a family of blues (Air Force / Baby / Pale Sky) for accents and section
+   backgrounds. Red is intentionally rare so it stays punchy.
+   ========================================================================== */
+:root {
+  /* Core palette */
+  --accent: #ba1200; /* Brick Ember — rare punchy accent (hover, emphasis) */
+  --accent-deep: #8f0e00; /* darker red for hover-on-red if needed */
+  --ink: #031927; /* Ink Black — primary text */
+  --air: #508aa8; /* Air Force Blue — calm primary accent (links, labels) */
+  --baby: #9dd1f1; /* Baby Blue — light accent */
+  --sky: #c8e0f4; /* Pale Sky — very light accent / section tint */
+  --white: #ffffff;
+  --bg: #ECEAE4; /* warm beige — main page/hero background */
+
+  /* Semantic aliases (so existing component CSS keeps working) ---------------
+     Much of the codebase references --luxe, --seafoam, --grey-blue. We map
+     those names onto the new palette instead of renaming everywhere. */
+  --luxe: #1f4a63; /* calm deep blue — headings, links, active states */
+  --seafoam: #E4E1D9; /* warm beige section alt background */
+  --grey-blue: #c0c5db; /* muted alt surface */
+  --muted: #6a7785; /* secondary text */
+
+  /* Derived line colors */
+  --line: rgba(3, 25, 39, 0.12);
+  --line-strong: rgba(3, 25, 39, 0.26);
+
+  /* Typography */
+  --serif: "Newsreader", Georgia, serif;
+  --sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+
+  /* Layout */
+  --maxw-hero: 1480px; /* wide hero band */
+  --maxw-content: 1040px; /* nav / footer / hero alignment column */
+  --maxw-read: 760px; /* narrow reading column for lists, posts, about */
+}

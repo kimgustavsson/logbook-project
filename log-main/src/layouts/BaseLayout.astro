@@ -1,0 +1,70 @@
+---
+// The HTML shell shared by every page: <head> with fonts and meta, the nav,
+// a slot for page content, the footer, and the script initializers. Editing
+// site-wide structure (fonts, meta tags, analytics) happens here, once.
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface RailItem {
+  id: string;     // section id on the page (without #)
+  label: string;  // visible label in the table of contents
+}
+interface Props {
+  title?: string;
+  description?: string;
+  /** Pass a list of sections to show the left table-of-contents rail. */
+  rail?: RailItem[];
+  /** Heading shown above the rail (e.g. "Contents"). */
+  railTitle?: string;
+}
+const {
+  title = 'Kim Dasha Gustavsson — dev log & writing',
+  description = 'Notes on building software — a dev log and longer writing.',
+  rail = [],
+  railTitle = 'Contents',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="alternate" type="application/rss+xml" title="Kim Dasha Gustavsson — dev log & writing" href="/rss.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500;1,6..72,600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <Nav />
+
+    {rail.length > 0 && (
+      <nav class="rail" id="rail" aria-label="Table of contents">
+        <span class="rail-title">{railTitle}</span>
+        {rail.map((item) => (
+          <a href={`#${item.id}`} data-sec={item.id}><span class="rdot"></span><span class="rname">{item.label}</span></a>
+        ))}
+      </nav>
+    )}
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      // Wire up the shared behaviors. Each module owns one concern.
+      import { initReveal } from '../scripts/reveal';
+      import { initScrollRail } from '../scripts/scroll-rail';
+      initReveal();
+      initScrollRail();
+    </script>
+  </body>
+</html>

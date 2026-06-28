@@ -1,0 +1,46 @@
+---
+// View counter. Shows the number of views for the current post and bumps it
+// by one when the page loads. All data logic lives in src/lib/views.ts — this
+// component only handles display. If Supabase isn't configured, it hides
+// itself instead of showing a broken "0".
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+
+<span class="views" id="view-counter" data-slug={slug} hidden>
+  <span class="num" id="view-num">—</span> views
+</span>
+
+<style>
+  .views { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .views .num { color: var(--luxe); }
+</style>
+
+<script>
+  // On load, increment the count once and reveal the element with the result.
+  const el = document.getElementById('view-counter');
+  const numEl = document.getElementById('view-num');
+  const slug = el?.dataset.slug;
+
+  if (el && numEl && slug) {
+    // Avoid double-counting the same browser within a short window using a
+    // sessionStorage guard (cleared when the tab closes). Not bulletproof,
+    // but enough to stop refresh-spam inflating your own numbers.
+    const key = `viewed:${slug}`;
+    const alreadyViewed = sessionStorage.getItem(key);
+
+    (async () => {
+      try {
+        const { addView, getViews } = await import('../lib/views');
+        const count = alreadyViewed ? await getViews(slug) : await addView(slug);
+        if (!alreadyViewed) sessionStorage.setItem(key, '1');
+        numEl.textContent = count.toLocaleString();
+        el.hidden = false; // only show once we have a real number
+      } catch {
+        // Supabase unavailable — leave the counter hidden.
+      }
+    })();
+  }
+</script>

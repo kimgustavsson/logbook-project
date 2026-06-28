@@ -1,0 +1,18 @@
+---
+// Minimal footer: copyright on the left, a couple of links on the right.
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="foot-min">
+    <span>© {year} Kim Dasha Gustavsson</span>
+  </div>
+</footer>
+
+<style>
+  footer { background: var(--white); border-top: 1px solid var(--line); padding: 34px clamp(20px, 5vw, 56px); }
+  .foot-min { max-width: var(--maxw-content); margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; font-size: 14px; color: var(--luxe); }
+  .foot-min .links { display: flex; gap: 24px; }
+  .foot-min a { opacity: .85; transition: opacity .25s; }
+  .foot-min a:hover { opacity: 1; }
+</style>

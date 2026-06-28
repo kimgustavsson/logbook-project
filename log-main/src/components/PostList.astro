@@ -1,0 +1,167 @@
+---
+// A titled list of posts. Renders the section label, heading, count, then a
+// PostRow for each entry. Used for both dev log and writing by passing a
+// different `variant` (which decides whether the left column is a date or a
+// number) and a different set of posts.
+//
+// Optional `limit` caps how many rows show (the home page passes 4). When the
+// list is capped and `viewAllHref` is set, a "View all" link appears.
+import PostRow from './PostRow.astro';
+
+interface PostItem {
+  slug: string;
+  title: string;
+  description: string;
+  date: Date;
+  tags: string[];
+}
+interface Props {
+  id: string;            // anchor id, e.g. "devlog"
+  label: string;         // small uppercase label
+  heading: string;       // big serif heading
+  basePath: string;      // url prefix, e.g. "/devlog"
+  variant: 'date' | 'number';
+  posts: PostItem[];
+  limit?: number;        // max rows to show (omit to show all)
+  viewAllHref?: string;  // if set and the list is capped, show a "View all" link
+  filterable?: boolean;  // if true, show clickable tag filters above the list
+}
+const { id, label, heading, basePath, variant, posts, limit, viewAllHref, filterable } = Astro.props;
+
+// Keep the full count so numbering and the "view all" decision stay correct
+// even when we only render the first `limit` rows.
+const total = posts.length;
+const visible = typeof limit === 'number' ? posts.slice(0, limit) : posts;
+const hasMore = typeof limit === 'number' && total > limit;
+
+// Collect the unique set of tags across all visible posts, for the filter bar.
+const allTags = filterable
+  ? Array.from(new Set(visible.flatMap((p) => p.tags))).sort()
+  : [];
+
+// Format the left-hand meta column based on the variant.
+// For numbered posts, the number is based on the FULL list (newest = highest),
+// so capping the visible rows doesn't renumber them.
+function metaFor(post: PostItem, index: number): string {
+  if (variant === 'number') {
+    return 'No. ' + String(total - index).padStart(2, '0');
+  }
+  const month = post.date.toLocaleString('en-US', { month: 'long' });
+  return `${post.date.getFullYear()} · ${month}`;
+}
+
+const countLabel = variant === 'number' ? 'Essays & ideas' : `${total} entries`;
+---
+
+<div class="wrap">
+  <div class="sec-label">{label}</div>
+  <div class="head-row">
+    <h2>{heading}</h2>
+    <span class="count">{countLabel}</span>
+  </div>
+
+  {filterable && allTags.length > 0 && (
+    <div class="tag-filter" data-list={id}>
+      <button class="tf-chip active" data-tag="*">All</button>
+      {allTags.map((t) => (
+        <button class="tf-chip" data-tag={t}>{t}</button>
+      ))}
+    </div>
+  )}
+
+  <div class="list" id={`list-${id}`}>
+    {visible.map((post, i) => (
+      <div class="list-item" data-tags={post.tags.join(',')}>
+        <PostRow
+          href={`${basePath}/${post.slug}/`}
+          meta={metaFor(post, i)}
+          title={post.title}
+          description={post.description}
+          tags={post.tags}
+        />
+      </div>
+    ))}
+  </div>
+  <p class="tf-empty" id={`empty-${id}`} hidden>No posts with this tag yet.</p>
+
+  {hasMore && viewAllHref && (
+    <a class="view-all" href={viewAllHref}>View all {label.toLowerCase()} <span class="arr">&#8594;</span></a>
+  )}
+</div>
+
+<style>
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .sec-label {
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--luxe);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .sec-label::before { display: none; }
+  .head-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+  .head-row h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(34px, 5vw, 54px);
+    letter-spacing: -0.02em;
+    line-height: 1.04;
+    color: var(--luxe);
+    margin-bottom: 0;
+  }
+  .head-row .count {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .list { margin-top: 30px; }
+  .view-all { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; font-size: 14px; font-weight: 500; color: var(--luxe); transition: gap .25s; }
+  .view-all:hover { gap: 14px; }
+  .view-all .arr { transition: transform .25s; }
+  .view-all:hover .arr { transform: translateX(2px); }
+
+  .tag-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .tf-chip { font-family: inherit; font-size: 12px; letter-spacing: .02em; color: var(--muted); background: transparent; border: 1px solid var(--line-strong); border-radius: 100px; padding: 5px 13px; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+  .tf-chip:hover { color: var(--luxe); border-color: var(--luxe); }
+  .tf-chip.active { background: var(--luxe); color: var(--white); border-color: var(--luxe); }
+  .list-item.hide { display: none; }
+  .tf-empty { margin-top: 30px; font-size: 14px; color: var(--muted); }
+</style>
+
+<script>
+  // Client-side tag filtering for any list that opted in with `filterable`.
+  document.querySelectorAll('.tag-filter').forEach((bar) => {
+    const listId = bar.getAttribute('data-list');
+    const chips = bar.querySelectorAll('.tf-chip');
+    const items = document.querySelectorAll(`#list-${listId} .list-item`);
+    const empty = document.getElementById(`empty-${listId}`);
+
+    bar.addEventListener('click', (e) => {
+      const chip = (e.target as HTMLElement).closest('.tf-chip') as HTMLElement | null;
+      if (!chip) return;
+      const tag = chip.getAttribute('data-tag');
+
+      chips.forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      let shown = 0;
+      items.forEach((item) => {
+        const tags = (item.getAttribute('data-tags') || '').split(',');
+        const match = tag === '*' || tags.includes(tag || '');
+        item.classList.toggle('hide', !match);
+        if (match) shown++;
+      });
+      if (empty) empty.hidden = shown !== 0;
+    });
+  });
+</script>

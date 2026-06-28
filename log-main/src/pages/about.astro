@@ -1,0 +1,216 @@
+---
+// About page — a single long page with several sections, a left-hand table of
+// contents (the rail, driven by BaseLayout), and home / back-to-top links at
+// the end. All copy lives in the data objects below so you can edit content
+// without touching markup. Replace the placeholder text with your own.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MailButton from '../components/MailButton.astro';
+
+// ---- Table of contents: id must match each <section id> below ----
+const toc = [
+  { id: 'intro', label: 'Intro' },
+  { id: 'now', label: 'What I’m doing now' },
+  { id: 'approach', label: 'How I work' },
+  { id: 'skills', label: 'What I work with' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'contact', label: 'Contact' },
+];
+
+// ---- "What I'm doing now" cards ----
+const nowItems = [
+  {
+    title: 'A 5-phase wearable AI roadmap',
+    body: 'I’m working through a step-by-step research project using sensor data, scaling from basic fall detection to predicting panic attacks. Right now, I’m in Phase 1: running an end-to-end ML pipeline with IMU data. I’m testing different form factors (like using my smartphone to collect data) to answer a specific question: Can we accurately detect abnormal movements from a low-stigma placement, like a necklace, rather than a bulky medical device?',
+  },
+  {
+    title: 'Next up: Agentic systems for educators',
+    body: 'Looking ahead, I’m planning to build an agentic system designed specifically to help professors and teachers. The goal is to apply my background in informatics and practical AI to create intelligent tools that can genuinely streamline their workflows and reduce administrative friction.',
+  },
+];
+
+// ---- "How I work" principles ----
+const principles = [
+  {
+    title: 'Identify the real constraint',
+    body: 'Before writing any code, I try to figure out the actual bottleneck. Is it a tight deadline, a lack of clean data, or user stigma? I adapt my strategy based on what the project actually needs to succeed.',
+  },
+  {
+    title: 'Momentum over meetings',
+    body: 'When a team needs direction, a quick proof-of-concept is usually more effective than a long discussion. I prefer to build a rough prototype and let people interact with it. It aligns everyone faster and keeps the project moving.',
+  },
+  {
+    title: 'Connect the whole pipeline',
+    body: 'I like to see the big picture—how raw data eventually becomes a user interface. I enjoy working closely with a team, exchanging feedback, and gradually figuring things out together. The process of solving a problem from end to end is what keeps me engaged.',
+  },
+  {
+    title: 'Build, break, iterate',
+    body: 'I expect things to fail on the first try, so I don’t over-plan. Once the main constraint is clear, I move fast. I just build a basic version, see where it breaks, and fix it until it works.',
+  },
+];
+
+// ---- "What I work with" skill groups ----
+const skillGroups = [
+  {
+    title: 'AI / ML',
+    body: 'Python, PyTorch, scikit-learn. End-to-end ML pipelines, time-series data processing (IMU sensors), edge deployment (ONNX), and practical LLM integrations.',
+  },
+  {
+    title: 'Engineering',
+    body: 'TypeScript, React, React Native, and Node.js. Building responsive web interfaces, cross-platform mobile apps, API integrations, and functional full-stack prototypes—backed by databases (SQL/NoSQL) and scalable architectures like Docker and microservices.',
+  },
+  {
+    title: 'Design / Product',
+    body: 'Figma, user research, and p5.js (creative coding). Focused on translating complex backend logic and ambiguous user needs into scoped, human-centered interfaces.',
+  },
+  {
+    title: 'Business Insight',
+    body: 'Product scoping, market analysis, and aligning technical solutions with business goals. Evaluating feasibility, constraints, and ensuring the software actually delivers real-world value.',
+  },
+];
+
+// ---- Experience rows: [period, role, field] ----
+const experience = [
+  { period: '2026 — present', role: 'MSc in Artificial Intelligence', field: 'Coursework, research, and independent ML projects' },
+  { period: '2023 — 2026', role: 'BA in Artificial Intelligence', field: 'Web & mobile development, design foundations' },
+];
+
+const RESUME_URL = '/resume.pdf'; // drop your PDF in /public as resume.pdf
+const EMAIL = 'you@example.com';
+const [MAIL_USER, MAIL_DOMAIN] = EMAIL.split('@');
+const LINKEDIN = 'https://www.linkedin.com/in/your-handle';
+const GITHUB = 'https://github.com/your-handle';
+---
+
+<BaseLayout title="About — Kim" rail={toc} railTitle="Contents">
+  <article class="about">
+  <div class="wrap">
+
+    <section class="ab-block" id="intro">
+      <p class="eyebrow">About</p>
+      <h1>Kim Dasha Gustavsson</h1>
+      <p class="lead">This space is an archive of my experiments and everyday problem-solving. It is where I test ideas, hit technical roadblocks, and relentlessly figure out how to make them work.</p>
+      <a class="resume" href={`mailto:${EMAIL}`}>Contact →</a>
+    </section>
+
+    <section class="ab-block" id="now">
+      <h2>What I’m doing now</h2>
+      <div class="cards">
+        {nowItems.map((item) => (
+          <div class="card">
+            <h3>{item.title}</h3>
+            <p>{item.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="ab-block" id="approach">
+      <h2>How I work</h2>
+      <div class="cards">
+        {principles.map((p) => (
+          <div class="card">
+            <h3>{p.title}</h3>
+            <p>{p.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="ab-block" id="skills">
+      <h2>What I work with</h2>
+      <div class="skills">
+        {skillGroups.map((g) => (
+          <div class="skill">
+            <h4>{g.title}</h4>
+            <p>{g.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="ab-block" id="experience">
+      <h2>Experience</h2>
+      <div class="exp">
+        {experience.map((row) => (
+          <div class="exp-row">
+            <span class="exp-period">{row.period}</span>
+            <span class="exp-role">{row.role}</span>
+            <span class="exp-field">{row.field}</span>
+          </div>
+        ))}
+      </div>
+      <p class="exp-note">More detail — including earlier work — is on my <a href={LINKEDIN} target="_blank" rel="noopener">LinkedIn</a>.</p>
+    </section>
+
+    <section class="ab-block" id="contact">
+      <h2>Contact</h2>
+      <div class="contact">
+        <div class="c-row"><h4>Email</h4><MailButton user={MAIL_USER} domain={MAIL_DOMAIN} label="Email me →" /></div>
+        <div class="c-row"><h4>LinkedIn</h4><a href={LINKEDIN} target="_blank" rel="noopener">linkedin.com/in/your-handle</a></div>
+        <div class="c-row"><h4>GitHub</h4><a href={GITHUB} target="_blank" rel="noopener">github.com/your-handle</a></div>
+      </div>
+    </section>
+
+    <div class="page-end">
+      <a class="end-link" href="/">← Home</a>
+      <a class="end-link" href="#" id="to-top">Back to top ↑</a>
+    </div>
+
+  </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .about { padding: 132px clamp(24px, 6vw, 56px) 60px; }
+  .about .wrap { max-width: 760px; margin: 0 auto; }
+  .ab-block { padding: clamp(34px, 6vh, 60px) 0; border-top: 1px solid var(--line); }
+  .ab-block:first-child { border-top: none; padding-top: 0; }
+
+  .eyebrow { font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--luxe); font-weight: 600; margin-bottom: 18px; }
+  .about h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(34px, 5vw, 54px); letter-spacing: -.02em; line-height: 1.04; color: var(--luxe); margin-bottom: 22px; }
+  .lead { font-size: clamp(16px, 1.6vw, 19px); line-height: 1.6; color: var(--ink); max-width: 60ch; }
+  .resume { display: inline-block; margin-top: 26px; font-size: 14px; font-weight: 500; color: var(--luxe); border: 1px solid var(--line-strong); border-radius: 100px; padding: 9px 20px; transition: background .25s, color .25s; }
+  .resume:hover { background: var(--luxe); color: var(--white); }
+
+  .about h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.01em; color: var(--luxe); margin-bottom: 28px; }
+
+  .cards { display: flex; flex-direction: column; gap: 26px; }
+  .card h3 { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 9px; }
+  .card p { font-size: 15px; line-height: 1.6; color: var(--muted); max-width: 62ch; }
+
+  .skills { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 40px; }
+  .skill h4 { font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--luxe); margin-bottom: 10px; }
+  .skill p { font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+
+  .exp { display: flex; flex-direction: column; }
+  .exp-row { display: grid; grid-template-columns: 150px 1fr; gap: 6px 24px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .exp-row:first-child { border-top: none; }
+  .exp-period { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .exp-role { font-size: 15.5px; font-weight: 600; color: var(--ink); }
+  .exp-field { grid-column: 2; font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .exp-note { margin-top: 22px; font-size: 14px; color: var(--muted); }
+  .exp-note a { color: var(--luxe); text-decoration: underline; text-underline-offset: 2px; }
+
+  .contact { display: flex; flex-direction: column; gap: 18px; }
+  .c-row h4 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+  .c-row a { font-size: 16px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; transition: color .2s; }
+  .c-row a:hover { color: var(--luxe); }
+
+  .page-end { display: flex; justify-content: space-between; align-items: center; padding-top: 34px; margin-top: 20px; border-top: 1px solid var(--line); }
+  .end-link { font-size: 14px; color: var(--muted); transition: color .2s; }
+  .end-link:hover { color: var(--luxe); }
+
+  @media (max-width: 620px) {
+    .skills { grid-template-columns: 1fr; }
+    .exp-row { grid-template-columns: 1fr; }
+    .exp-field { grid-column: 1; }
+  }
+</style>
+
+<script>
+  // Smooth-scroll "Back to top" without jumping the URL hash.
+  document.getElementById('to-top')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>

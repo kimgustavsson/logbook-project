@@ -1,0 +1,49 @@
+---
+// A single row in a post list. Used by BOTH the dev log and the writing
+// section — the only difference is the left-hand "meta" slot, which shows a
+// date for dev log and a number for writing. Everything else is shared.
+interface Props {
+  href: string;
+  meta: string;       // left column: "2026 · June" or "No. 01"
+  title: string;
+  description: string;
+  tags: string[];
+}
+const { href, meta, title, description, tags } = Astro.props;
+---
+
+<a class="post fade-up" href={href}>
+  <span class="meta">{meta}</span>
+  <span class="main">
+    <span class="title">{title}</span>
+    <span class="desc">{description}</span>
+    {tags.length > 0 && (
+      <span class="tags">
+        {tags.map((t) => <span class="tag">{t}</span>)}
+      </span>
+    )}
+  </span>
+  <span class="arrow">→</span>
+</a>
+
+<style>
+  .post { display: grid; grid-template-columns: 120px 1fr auto; gap: 28px; align-items: start; padding: 22px 6px; border-top: 1px solid var(--line); transition: background .3s, padding-left .35s; cursor: pointer; }
+  .post:last-child { border-bottom: 1px solid var(--line); }
+  .post:hover { background: #f7f8fc; padding-left: 16px; }
+  :global(.bg-seafoam) .post:hover { background: #fbfaf2; }
+  .meta { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 5px; white-space: nowrap; }
+  .title { font-family: var(--serif); font-size: clamp(18px, 2vw, 24px); font-weight: 400; letter-spacing: -.01em; color: var(--luxe); line-height: 1.12; transition: color .2s; }
+  .post:hover .title { color: var(--accent); }
+  .desc { display: block; font-size: 13.5px; color: var(--muted); line-height: 1.5; margin-top: 7px; max-width: 60ch; }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  .tag { font-size: 11px; letter-spacing: .03em; color: var(--luxe); border: 1px solid var(--line-strong); padding: 3px 10px; border-radius: 100px; white-space: nowrap; transition: border-color .3s, background .3s, color .3s; }
+  .post:hover .tag { border-color: var(--luxe); background: var(--luxe); color: var(--white); }
+  .arrow { font-size: 20px; color: var(--muted); transition: transform .3s, color .3s; padding-top: 0; align-self: center; display: flex; align-items: center; }
+  .post:hover .arrow { transform: translateX(5px); color: var(--accent); }
+  @media (max-width: 760px) {
+    .post { grid-template-columns: 1fr auto; gap: 10px; }
+    .meta { grid-column: 1 / -1; padding-top: 0; margin-bottom: 2px; }
+    .arrow { display: none; }
+    .title { font-size: 19px; }
+  }
+</style>

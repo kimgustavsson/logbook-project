@@ -1,0 +1,62 @@
+---
+// Home page: hero, then the dev log list, then the writing list. Posts are
+// loaded from the content collections, filtered for drafts, and sorted newest
+// first. Rendering is delegated to the reusable PostList component.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import PostList from '../components/PostList.astro';
+import { getCollection } from 'astro:content';
+
+// Helper: drop drafts in production, sort newest-first, map to plain objects.
+async function loadPosts(collection: 'devlog' | 'writing') {
+  const entries = await getCollection(collection, ({ data }) => !data.draft);
+  return entries
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+    .map((entry) => ({
+      slug: entry.id,
+      title: entry.data.title,
+      description: entry.data.description,
+      date: entry.data.date,
+      tags: entry.data.tags,
+    }));
+}
+
+const devlogPosts = await loadPosts('devlog');
+const writingPosts = await loadPosts('writing');
+---
+
+<BaseLayout rail={[
+  { id: 'top', label: 'Intro' },
+  { id: 'devlog', label: 'Dev log' },
+  { id: 'writing', label: 'Writing' },
+]}>
+  <Hero devlogCount={devlogPosts.length} writingCount={writingPosts.length} />
+
+  <section class="block" id="devlog">
+    <PostList
+      id="devlog"
+      label="Dev log"
+      heading="Recent entries"
+      basePath="/devlog"
+      variant="date"
+      posts={devlogPosts}
+    />
+  </section>
+
+  <section class="block bg-seafoam" id="writing">
+    <PostList
+      id="writing"
+      label="Writing"
+      heading="Longer thoughts"
+      basePath="/writing"
+      variant="number"
+      posts={writingPosts}
+    />
+  </section>
+
+  <script>
+    // Photo trail is home-only, so it's initialized here rather than in BaseLayout.
+    import { initPhotoTrail } from '../scripts/photo-trail';
+    initPhotoTrail();
+  </script>
+</BaseLayout>

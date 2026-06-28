@@ -1,0 +1,52 @@
+---
+// A mailto link that never puts the full address in the HTML, so scrapers
+// can't harvest it. The address is split into user + domain and only assembled
+// in JS when the visitor actually clicks. To people it's a normal "Contact"
+// button that opens their mail app; to bots there's no readable address.
+//
+// Usage:  <MailButton user="you" domain="example.com" label="Contact" />
+//
+// `label` is what shows on screen. If you omit it, the (lightly obfuscated)
+// address is shown with " [at] " so it still reads as an email without being
+// trivially scrapable.
+interface Props {
+  user: string;          // part before the @
+  domain: string;        // part after the @
+  label?: string;        // visible text; defaults to "user [at] domain"
+  className?: string;    // extra class(es) for styling per location
+  subject?: string;      // optional prefilled subject
+  delay?: number;        // optional data-delay for the fade-up animation
+}
+const { user, domain, label, className = '', subject, delay } = Astro.props;
+const display = label ?? `${user} [at] ${domain}`;
+---
+
+<a
+  href="#"
+  class={`mailbtn ${className}`}
+  data-user={user}
+  data-domain={domain}
+  data-subject={subject ?? ''}
+  data-delay={delay ?? undefined}
+  rel="nofollow"
+>{display}</a>
+
+<script>
+  // Assemble the address only on interaction.
+  document.querySelectorAll('a.mailbtn').forEach((el) => {
+    const a = el as HTMLAnchorElement;
+    const build = () => {
+      const user = a.dataset.user || '';
+      const domain = a.dataset.domain || '';
+      const subject = a.dataset.subject || '';
+      let href = `mailto:${user}@${domain}`;
+      if (subject) href += `?subject=${encodeURIComponent(subject)}`;
+      a.setAttribute('href', href);
+    };
+    // Build on hover/focus (so the real link is ready by click) and on click
+    // (covers touch devices that don't hover).
+    a.addEventListener('mouseenter', build, { once: true });
+    a.addEventListener('focus', build, { once: true });
+    a.addEventListener('click', build);
+  });
+</script>

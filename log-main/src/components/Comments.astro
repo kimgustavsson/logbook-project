@@ -1,0 +1,51 @@
+---
+// Comments, powered by Giscus (GitHub Discussions). This is intentionally a
+// self-contained "island": if you later want to switch to a different comment
+// system (e.g. a custom Supabase-backed one that doesn't require GitHub
+// login), you only replace THIS file — nothing else in the project references
+// Giscus directly.
+//
+// SETUP: enable Discussions on your repo, install the Giscus GitHub App, then
+// visit https://giscus.app to generate the data-* values below and paste them
+// in. See SETUP.md for the step-by-step.
+const GISCUS = {
+  repo: 'your-github-username/your-repo',     // TODO
+  repoId: 'REPLACE_WITH_REPO_ID',             // TODO from giscus.app
+  category: 'Announcements',                  // discussion category name
+  categoryId: 'REPLACE_WITH_CATEGORY_ID',     // TODO from giscus.app
+};
+---
+
+<section class="comments" aria-label="Comments">
+  <div class="wrap">
+    <h3>Comments</h3>
+    <div id="giscus-mount"></div>
+  </div>
+</section>
+
+<style>
+  .comments { padding: clamp(40px, 6vh, 72px) clamp(24px, 9vw, 140px) clamp(60px, 9vh, 100px); }
+  .comments .wrap { max-width: var(--maxw-content); margin: 0 auto; }
+  .comments h3 { font-family: var(--serif); font-weight: 400; font-size: 26px; color: var(--luxe); margin-bottom: 24px; letter-spacing: -.01em; }
+</style>
+
+<script define:vars={{ GISCUS }}>
+  // Inject the Giscus embed script with the configured repo/category. Theme is
+  // matched to the site's light look; change `data-theme` if you add dark mode.
+  const s = document.createElement('script');
+  s.src = 'https://giscus.app/client.js';
+  s.async = true;
+  s.crossOrigin = 'anonymous';
+  s.setAttribute('data-repo', GISCUS.repo);
+  s.setAttribute('data-repo-id', GISCUS.repoId);
+  s.setAttribute('data-category', GISCUS.category);
+  s.setAttribute('data-category-id', GISCUS.categoryId);
+  s.setAttribute('data-mapping', 'pathname');   // one discussion thread per post URL
+  s.setAttribute('data-strict', '1');
+  s.setAttribute('data-reactions-enabled', '1');
+  s.setAttribute('data-emit-metadata', '0');
+  s.setAttribute('data-input-position', 'top');
+  s.setAttribute('data-theme', 'light');
+  s.setAttribute('data-lang', 'en');
+  document.getElementById('giscus-mount')?.appendChild(s);
+</script>
